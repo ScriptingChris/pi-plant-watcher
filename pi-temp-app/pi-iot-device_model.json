@@ -1,0 +1,13 @@
+[
+  {
+    "@id": "dtmi:iotCentPlantmonitor:PiTemperatureMonitor_4ip;1",
+    "@type": "Interface",
+    "displayName": {
+      "en": "Pi Temperature Monitor"
+    },
+    "@context": [
+      "dtmi:iotcentral:context;2",
+      "dtmi:dtdl:context;2"
+    ]
+  }
+]
