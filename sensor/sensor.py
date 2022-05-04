@@ -3,6 +3,7 @@ import glob
 import time
 import json
 import logging
+from tokenize import Double
 from azure.iot.device import IoTHubDeviceClient, Message, MethodResponse
 
 
@@ -34,7 +35,7 @@ def read_temp():
     if equals_pos != -1:
         # Read the temperature .
         temp_string = lines[1][equals_pos+2:]
-        temp_c = float(temp_string) / 1000.0
+        temp_c = round(float(temp_string) / 1000.0, 2)
         data = '''{{"temperature": {temperature}}}'''
         message = data.format(temperature=temp_c)
         return message
@@ -81,13 +82,13 @@ def run_telemetry_sample(client):
     client.connect()
 
     while True:
-        message = Message(read_temp())
+        message = Message(read_temp(), content_encoding='utf-8', content_type='application/json')
         print(f'Sending message: {message}')
 
         # Send the message to Azure IOT
         client.send_message(message)
         print("Message sent")
-        time.sleep(60)
+        time.sleep(TIMING)
 
 
 def main():
@@ -109,8 +110,10 @@ def main():
 
 
 if __name__ == "__main__":
-    CONNECTION_STRING =  os.getenv("IOTHUB_DEVICE_CONNECTION_STRING")
-        # These tow lines mount the device:
+    CONNECTION_STRING = os.getenv("CONNECTION_STRING")
+    TIMING = 5
+    
+    # These tow lines mount the device:
     os.system('modprobe w1-gpio')
     os.system('modprobe w1-therm')
 
