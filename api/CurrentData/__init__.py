@@ -5,41 +5,34 @@ import azure.functions as func
 from azure.data.tables import TableClient
 
 
-CONNECTION_STRING = os.getenv('CONNECTION_STRING')
+CONNECTION_STRING = 'DefaultEndpointsProtocol=https;AccountName=piplantstorage;AccountKey=A+uYWMFB/brmKQczn3QNqLleQQ6rQWXTmSJQ1ngI6j/zATehgXBAwdj+hCN58cNCqn8PNWmAla1rgdfKVv/tvA==;EndpointSuffix=core.windows.net' #os.getenv('CONNECTION_STRING')
+TABLE_NAME = "PlantData"
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
 
-    query = "PartitionKey eq 'RedMarker'"
-    table_client = TableClient.from_connection_string(conn_str=CONNECTION_STRING, table_name="plant-data")
+    query = "PartitionKey eq 'rpi-chili'"
+    table_client = TableClient.from_connection_string(conn_str=CONNECTION_STRING, table_name=TABLE_NAME)
     entities = table_client.query_entities(query)
+    data_object = []
     for entity in entities:
+        entity_object = {}
         for key in entity.keys():
-            print("Key: {}, Value: {}".format(key, entity[key]))
+            entity_object[key] = entity[key]
+            logging.info(f"Key: {key}, Value: {entity[key]}")
+        
+        data_object.append(entity_object)
 
 
-
-
-
-
-
-
-
-
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+    if len(data_object) >= 1:
+        json_object = json.dumps(data_object)
+        return func.HttpResponse(
+             json_object,
+             status_code=200
+        )
     else:
         return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
+             "Not found",
+             status_code=404
         )
