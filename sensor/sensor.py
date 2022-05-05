@@ -123,7 +123,7 @@ def main():
 
 if __name__ == "__main__":
     CONNECTION_STRING = os.getenv("CONNECTION_STRING")
-    TIMING = 5
+    TIMING = 300
     
     # These tow lines mount the device:
     os.system('modprobe w1-gpio')
