@@ -3,6 +3,7 @@ import glob
 import time
 import json
 import logging
+from datetime import datetime
 from tokenize import Double
 from azure.iot.device import IoTHubDeviceClient, Message, MethodResponse
 
@@ -23,6 +24,11 @@ def read_temp_raw():
     f.close()
     return lines
 
+def timestamp():
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    return current_time
+
 
 def read_temp():
     lines = read_temp_raw()
@@ -36,8 +42,14 @@ def read_temp():
         # Read the temperature .
         temp_string = lines[1][equals_pos+2:]
         temp_c = round(float(temp_string) / 1000.0, 2)
-        data = '''{{"temperature": {temperature}}}'''
-        message = data.format(temperature=temp_c)
+        #data = '{{"temperature": {temperature},"logtime": {logtime}}}'
+        #data = '''{{"temperature": {temperature}}}'''
+        #message = data.format(temperature=temp_c, logtime=timestamp())
+        #message = data.format(temperature=temp_c)
+        message = json.dumps({
+            "temperature": temp_c,
+            "logtime": timestamp()
+        })
         return message
 
 
